@@ -243,6 +243,44 @@ vagrant box remove kalilinux/rolling
 vagrant up
 ```
 
+## Troubleshooting
+
+### Common Issues
+
+#### 1. SQL Server Installation Fails on WEB02
+The Chocolatey package `sql-server-express2019` may fail to install due to network issues or missing dependencies.
+**Solution:** Install SQL Server Express 2019 manually:
+- Download from: https://www.microsoft.com/en-us/sql-server/sql-server-downloads
+- During installation, set instance name to `MSSQLSERVER`, mixed mode authentication, sa password: `SQLAdmin123!`
+- Enable xp_cmdshell using SQL Server Management Studio or `sqlcmd`:
+  ```sql
+  EXEC sp_configure 'show advanced options', 1; RECONFIGURE;
+  EXEC sp_configure 'xp_cmdshell', 1; RECONFIGURE;
+  ```
+
+#### 2. Domain Join Fails
+Windows machines may fail to join domain if DC01 is not ready or DNS misconfigured.
+**Solution:**
+- Ensure DC01 is running: `vagrant status dc01`
+- Check IP connectivity from other VMs to `10.0.2.10`
+- Manual domain join: Log into VM with vagrant/vagrant credentials and join domain `lab.local` manually using credentials `Administrator` / `D@nAdm!n2024`
+
+#### 3. Vagrant Timeout During Provisioning
+Windows VMs may take longer than default timeout to boot.
+**Solution:** Increase timeout in Vagrantfile: `config.vm.boot_timeout = 600`
+
+#### 4. Web Frontend Not Accessible
+If http://10.0.1.10:8080 is not accessible:
+- Check Kali VM is running: `vagrant status kali`
+- SSH into Kali: `vagrant ssh kali` and check service: `sudo systemctl status flag-api`
+- Start API manually: `sudo systemctl start flag-api`
+
+#### 5. Flag Validation Fails
+If flags are not validating correctly:
+- Regenerate flags: `python3 flags/generate.py`
+- Restart flag API: `sudo systemctl restart flag-api` on Kali
+- Check hashes match: Compare `flags/hashes.json` with flag file contents
+
 ## Security Warning
 
 This lab contains intentionally vulnerable systems. Do NOT expose these VMs to the internet or untrusted networks. Use only in isolated environments.
@@ -253,6 +291,7 @@ For issues, questions, or contributions:
 - Check the troubleshooting section above
 - Review Vagrant and VirtualBox logs
 - Ensure all prerequisites are met
+- Visit GitHub repository for updates and issue tracking
 
 ## License and Attribution
 
