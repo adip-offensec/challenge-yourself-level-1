@@ -1,6 +1,10 @@
 # Attack Path Lab
 
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/adip-offensec/challenge-yourself-level-1)
+
 A comprehensive Windows domain penetration testing lab simulating real-world attack chains from initial access to domain compromise.
+
+**GitHub Repository:** https://github.com/adip-offensec/challenge-yourself-level-1
 
 ## Lab Overview
 
