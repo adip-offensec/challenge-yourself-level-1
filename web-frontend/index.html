@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attack Path Lab</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --success: #198754;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --dark: #212529;
+            --light: #f8f9fa;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.8rem;
+        }
+        .challenge-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        .challenge-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+        .card-header {
+            background: var(--dark);
+            color: white;
+            font-weight: bold;
+            padding: 15px 20px;
+            border-bottom: none;
+        }
+        .difficulty-easy { border-left: 5px solid var(--success); }
+        .difficulty-medium { border-left: 5px solid var(--warning); }
+        .difficulty-hard { border-left: 5px solid var(--danger); }
+        .flag-form {
+            border-top: 1px solid #eee;
+            padding: 20px;
+            background: #f9f9f9;
+        }
+        .hint-section {
+            background: #f0f8ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .machine-badge {
+            background: #6f42c1;
+            color: white;
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        .completed {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 2px solid var(--success);
+        }
+        .progress-ring {
+            width: 60px;
+            height: 60px;
+        }
+        .progress-ring-circle {
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-bug me-2"></i>Attack Path Lab
+            </a>
+            <div class="navbar-text text-light">
+                Advanced Windows Domain Penetration Testing
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container py-5">
+        <!-- Header -->
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto text-center text-white">
+                <h1 class="display-4 mb-3">Windows Attack Path Simulation</h1>
+                <p class="lead">Navigate through a realistic enterprise network, exploiting common misconfigurations from initial access to domain compromise.</p>
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <span class="badge bg-success p-2">SQL Injection</span>
+                    <span class="badge bg-warning p-2">Privilege Escalation</span>
+                    <span class="badge bg-danger p-2">Lateral Movement</span>
+                    <span class="badge bg-info p-2">Kerberoasting</span>
+                    <span class="badge bg-dark p-2">DCSync</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Card -->
+        <div class="row mb-5">
+            <div class="col-lg-10 mx-auto">
+                <div class="card challenge-card">
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <h2 class="text-primary" id="completed-count">0</h2>
+                                <p class="text-muted">Challenges Completed</p>
+                            </div>
+                            <div class="col-md-3">
+                                <h2 class="text-warning" id="total-count">7</h2>
+                                <p class="text-muted">Total Challenges</p>
+                            </div>
+                            <div class="col-md-3">
+                                <h2 class="text-success" id="progress-percent">0%</h2>
+                                <p class="text-muted">Progress</p>
+                            </div>
+                            <div class="col-md-3">
+                                <h2 class="text-info" id="hints-used">0</h2>
+                                <p class="text-muted">Hints Used</p>
+                            </div>
+                        </div>
+                        <div class="progress mt-3" style="height: 10px;">
+                            <div id="progress-bar" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Challenges List -->
+        <div class="row" id="challenges-container">
+            <!-- Challenges will be loaded here -->
+        </div>
+
+        <!-- Network Diagram -->
+        <div class="row mt-5">
+            <div class="col-lg-10 mx-auto">
+                <div class="card challenge-card">
+                    <div class="card-header">
+                        <i class="fas fa-network-wired me-2"></i>Network Topology
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center">
+                            <img src="https://via.placeholder.com/800x300/667eea/ffffff?text=Network+Diagram+Placeholder" class="img-fluid rounded" alt="Network Diagram">
+                            <p class="text-muted mt-3">
+                                <strong>Public Network:</strong> 10.0.1.0/24 (Kali: 10.0.1.10, WEB02: 10.0.1.20)<br>
+                                <strong>Internal Network:</strong> 10.0.2.0/24 (DC01: 10.0.2.10, FILES02: 10.0.2.30, CLIENT02: 10.0.2.40, DEV04: 10.0.2.50, PROD01: 10.0.2.60)<br>
+                                <strong>Domain:</strong> lab.local
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Challenge Template (Hidden) -->
+    <template id="challenge-template">
+        <div class="col-lg-10 mx-auto">
+            <div class="card challenge-card" data-id="">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="challenge-number badge bg-secondary me-2">#1</span>
+                        <span class="challenge-title h5 mb-0"></span>
+                        <span class="machine-badge ms-3"><i class="fas fa-server me-1"></i><span class="machine-name"></span></span>
+                    </div>
+                    <span class="difficulty-badge badge"></span>
+                </div>
+                <div class="card-body">
+                    <p class="card-text challenge-description"></p>
+                    <div class="hint-section">
+                        <h6><i class="fas fa-lightbulb me-2"></i>Hints</h6>
+                        <div class="hint-content mb-2"></div>
+                        <button class="btn btn-sm btn-outline-primary show-hint-btn">
+                            <i class="fas fa-question-circle me-1"></i>Show Hint
+                        </button>
+                        <small class="text-muted ms-2 hint-counter">Hint 0/3</small>
+                    </div>
+                    <div class="flag-form mt-4">
+                        <h6><i class="fas fa-flag me-2"></i>Submit Flag</h6>
+                        <div class="input-group">
+                            <input type="text" class="form-control flag-input" placeholder="Enter flag...">
+                            <button class="btn btn-success validate-btn">
+                                <i class="fas fa-check me-1"></i>Validate
+                            </button>
+                        </div>
+                        <div class="mt-2 result-message"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const challengesContainer = document.getElementById('challenges-container');
+            const template = document.getElementById('challenge-template');
+            const completedCountEl = document.getElementById('completed-count');
+            const progressBar = document.getElementById('progress-bar');
+            const progressPercent = document.getElementById('progress-percent');
+            const hintsUsedEl = document.getElementById('hints-used');
+            
+            let challenges = [];
+            let completed = JSON.parse(localStorage.getItem('completed_challenges') || '{}');
+            let hintLevels = JSON.parse(localStorage.getItem('hint_levels') || '{}');
+            let hintsUsed = parseInt(localStorage.getItem('hints_used') || '0');
+
+            // Load challenges from API
+            fetch('/challenges')
+                .then(res => res.json())
+                .then(data => {
+                    challenges = data;
+                    renderChallenges();
+                    updateStats();
+                });
+
+            function renderChallenges() {
+                challengesContainer.innerHTML = '';
+                challenges.forEach((challenge, index) => {
+                    const clone = template.content.cloneNode(true);
+                    const card = clone.querySelector('.card');
+                    card.dataset.id = challenge.id;
+                    
+                    if (completed[challenge.id]) {
+                        card.classList.add('completed');
+                    }
+                    
+                    // Set difficulty class
+                    const diffClass = `difficulty-${challenge.difficulty.toLowerCase()}`;
+                    card.classList.add(diffClass);
+                    
+                    // Populate data
+                    clone.querySelector('.challenge-number').textContent = `#${index + 1}`;
+                    clone.querySelector('.challenge-title').textContent = challenge.title;
+                    clone.querySelector('.machine-name').textContent = challenge.machine;
+                    clone.querySelector('.challenge-description').textContent = challenge.description;
+                    
+                    // Difficulty badge
+                    const diffBadge = clone.querySelector('.difficulty-badge');
+                    diffBadge.textContent = challenge.difficulty;
+                    diffBadge.classList.add(
+                        challenge.difficulty === 'Easy' ? 'bg-success' :
+                        challenge.difficulty === 'Medium' ? 'bg-warning' : 'bg-danger'
+                    );
+                    
+                    // Hint system
+                    const hintContent = clone.querySelector('.hint-content');
+                    const hintCounter = clone.querySelector('.hint-counter');
+                    const showHintBtn = clone.querySelector('.show-hint-btn');
+                    const currentLevel = hintLevels[challenge.id] || 0;
+                    
+                    hintCounter.textContent = `Hint ${currentLevel}/${challenge.hints.length}`;
+                    
+                    showHintBtn.addEventListener('click', () => {
+                        if (currentLevel < challenge.hints.length) {
+                            const newLevel = currentLevel + 1;
+                            hintLevels[challenge.id] = newLevel;
+                            localStorage.setItem('hint_levels', JSON.stringify(hintLevels));
+                            
+                            hintContent.innerHTML += `<div class="alert alert-info p-2 mb-1">${challenge.hints[newLevel - 1]}</div>`;
+                            hintCounter.textContent = `Hint ${newLevel}/${challenge.hints.length}`;
+                            
+                            hintsUsed++;
+                            localStorage.setItem('hints_used', hintsUsed);
+                            updateStats();
+                            
+                            if (newLevel >= challenge.hints.length) {
+                                showHintBtn.disabled = true;
+                                showHintBtn.textContent = 'No more hints';
+                            }
+                        }
+                    });
+                    
+                    // Flag submission
+                    const flagInput = clone.querySelector('.flag-input');
+                    const validateBtn = clone.querySelector('.validate-btn');
+                    const resultMsg = clone.querySelector('.result-message');
+                    
+                    validateBtn.addEventListener('click', () => {
+                        const flag = flagInput.value.trim();
+                        if (!flag) return;
+                        
+                        fetch('/api/validate', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ challenge: challenge.id, flag: flag })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                resultMsg.innerHTML = `<div class="alert alert-success p-2">${data.message}</div>`;
+                                completed[challenge.id] = true;
+                                localStorage.setItem('completed_challenges', JSON.stringify(completed));
+                                card.classList.add('completed');
+                                updateStats();
+                            } else {
+                                resultMsg.innerHTML = `<div class="alert alert-danger p-2">${data.message}</div>`;
+                            }
+                        })
+                        .catch(err => {
+                            resultMsg.innerHTML = `<div class="alert alert-danger p-2">Error: ${err.message}</div>`;
+                        });
+                    });
+                    
+                    challengesContainer.appendChild(clone);
+                });
+            }
+            
+            function updateStats() {
+                const completedCount = Object.keys(completed).length;
+                const total = challenges.length;
+                const percent = Math.round((completedCount / total) * 100) || 0;
+                
+                completedCountEl.textContent = completedCount;
+                progressBar.style.width = `${percent}%`;
+                progressPercent.textContent = `${percent}%`;
+                hintsUsedEl.textContent = hintsUsed;
+            }
+            
+            // Initialize stats
+            updateStats();
+        });
+    </script>
+</body>
+</html>

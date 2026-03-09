@@ -1,0 +1,36 @@
+# Vagrant
+.vagrant/
+*.log
+
+# VirtualBox
+*.vdi
+*.vmdk
+*.vbox
+*.vbox-prev
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Flags (regenerate on setup)
+flags/stage*.txt
+flags/hashes.json
+
+# Vagrant boxes (downloaded separately)
+*.box
