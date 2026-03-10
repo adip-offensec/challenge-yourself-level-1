@@ -1,10 +1,37 @@
-# Attack Path Lab
+<h1 align="center">
+  <br>
+  <a href="https://github.com/adip-offensec">
+    <img src="https://github.com/user-attachments/assets/0671daea-0e7a-4862-8bb3-613cc5a4569a" alt="challenge-yourself-level-1" width="620">
+  </a>
+  <br><br>
+  challenge-yourself-level-1
+</h1>
 
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/adip-offensec/challenge-yourself-level-1)
+<h4 align="center">
+  Realistic Windows domain penetration testing environment<br>
+  Complete attack chain: SQLi → RCE → SYSTEM → Kerberoasting → DCSync → Domain Admin
+</h4>
 
-A comprehensive Windows domain penetration testing lab simulating real-world attack chains from initial access to domain compromise.
+<p align="center">
+  <strong>Created by</strong><br><br>
+  <a href="https://github.com/adip-offensec">adip-offensec</a>
+  ×
+  <a href="https://github.com/manojxshrestha">manojxshrestha</a>
+</p>
 
-**GitHub Repository:** https://github.com/adip-offensec/challenge-yourself-level-1
+<p align="center">
+  <a href="https://github.com/adip-offensec/attack-path-lab/stargazers">
+    <img src="https://img.shields.io/github/stars/adip-offensec/challenge-yourself-level-1?style=social" alt="GitHub stars">
+  </a>
+  <a href="https://github.com/adip-offensec/attack-path-lab/forks">
+    <img src="https://img.shields.io/github/forks/adip-offensec/challenge-yourself-level-1?style=social" alt="GitHub forks">
+  </a>
+  <img src="https://img.shields.io/badge/Vagrant-✓-blue" alt="Vagrant">
+  <img src="https://img.shields.io/badge/VirtualBox-✓-blue" alt="VirtualBox">
+  <img src="https://img.shields.io/badge/Windows%20Domain-Active%20Directory-orange" alt="Active Directory">
+</p>
+
+<br>
 
 ## Lab Overview
 
